@@ -1,112 +1,82 @@
+
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
+
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const { Pool } = require('pg');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// Arquivo para armazenar dados
-const DATA_FILE = path.join(__dirname, 'data.json');
-
-// Função para carregar dados
-function loadData() {
-  try {
-    if (fs.existsSync(DATA_FILE)) {
-      const data = fs.readFileSync(DATA_FILE, 'utf8');
-      return JSON.parse(data);
-    }
-  } catch (error) {
-    console.error('Erro ao carregar dados:', error);
-  }
-  return [];
-}
-
-// Função para salvar dados
-function saveData(data) {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-    return true;
-  } catch (error) {
-    console.error('Erro ao salvar dados:', error);
-    return false;
-  }
-}
-
-// Rotas da API
-
-// GET /eventos - Retorna todos os eventos
-app.get('/eventos', (req, res) => {
-  const eventos = loadData();
-  res.json(eventos);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://cagometro_user:Msm9IWJHwgY6JID9Q34vcwMDpRcmgn30@dpg-d36oqnu3jp1c73f296n0-a.oregon-postgres.render.com/cagometro',
+  ssl: { rejectUnauthorized: false }
 });
 
-// POST /eventos - Adiciona um novo evento
-app.post('/eventos', (req, res) => {
-  const novoEvento = req.body;
-  
-  // Validar dados
-  if (!novoEvento.data || !novoEvento.detalhes) {
+const AMIGOS = ['João', 'Breno', 'Rian', 'Eduardo', 'Guilherme'];
+
+// GET todos os registros
+app.get('/eventos', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT id, data, detalhes FROM eventos ORDER BY data DESC, id DESC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar eventos' });
+  }
+});
+
+// POST novo registro
+app.post('/eventos', async (req, res) => {
+  const { data, detalhes } = req.body;
+  if (!data || !detalhes) {
     return res.status(400).json({ error: 'Dados incompletos' });
   }
-  
-  const eventos = loadData();
-  eventos.push(novoEvento);
-  
-  if (saveData(eventos)) {
-    res.status(201).json({ message: 'Evento adicionado com sucesso' });
-  } else {
-    res.status(500).json({ error: 'Erro ao salvar evento' });
+  // Garante formato correto
+  const detalhesLimpo = {};
+  for (const amigo of AMIGOS) {
+    detalhesLimpo[amigo] = detalhes[amigo] === true ? true : null;
+  }
+  try {
+    await pool.query('INSERT INTO eventos (data, detalhes) VALUES ($1, $2)', [data, detalhesLimpo]);
+    res.status(201).json({ message: 'Evento registrado' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao registrar evento' });
   }
 });
 
-// GET /estatisticas - Retorna estatísticas consolidadas
-app.get('/estatisticas', (req, res) => {
-  const eventos = loadData();
-  
-  // Calcular estatísticas
-  const totalEventos = eventos.reduce((total, evento) => {
-    return total + Object.values(evento.detalhes).filter(d => d !== null).length;
-  }, 0);
-  
-  const diasUnicos = new Set(eventos.map(e => e.data));
-  const mediaPorDia = diasUnicos.size > 0 ? (totalEventos / diasUnicos.size).toFixed(1) : 0;
-  
-  // Calcular por pessoa
-  const pessoas = {};
-  eventos.forEach(evento => {
-    for (const [pessoa, detalhes] of Object.entries(evento.detalhes)) {
-      if (detalhes) {
-        if (!pessoas[pessoa]) {
-          pessoas[pessoa] = { total: 0, pontuacao: 0 };
+// GET estatísticas simples
+app.get('/estatisticas', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT detalhes FROM eventos');
+    const stats = {};
+    for (const amigo of AMIGOS) stats[amigo] = 0;
+    let total = 0;
+    for (const row of result.rows) {
+      for (const amigo of AMIGOS) {
+        if (row.detalhes[amigo] === true) {
+          stats[amigo]++;
+          total++;
         }
-        pessoas[pessoa].total += 1;
-        pessoas[pessoa].pontuacao += detalhes.classificacao === 'normal' ? 1 :
-                                    detalhes.classificacao === 'urgente' ? 2 :
-                                    detalhes.classificacao === 'epico' ? 3 : 1.5;
       }
     }
-  });
-  
-  res.json({
-    totalEventos,
-    mediaPorDia,
-    diasRegistrados: diasUnicos.size,
-    pessoas
-  });
+    res.json({ total, porAmigo: stats });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar estatísticas' });
+  }
 });
 
-// Rota padrão para servir o frontend
+// Serve frontend
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+  console.log('Servidor rodando na porta ' + PORT);
 });
