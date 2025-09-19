@@ -16,7 +16,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-const AMIGOS = ['João', 'Breno', 'Rian', 'Eduardo', 'Guilherme'];
+const AMIGOS = ['joao', 'breno', 'rian', 'eduardo', 'guilherme'];
 
 // GET todos os registros
 app.get('/eventos', async (req, res) => {
