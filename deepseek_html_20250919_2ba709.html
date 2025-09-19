@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cagômetro Premium</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #8B4513;
+            --secondary: #D2B48C;
+            --accent: #F4A460;
+            --light: #F5F5DC;
+            --dark: #4A2C2A;
+            --success: #7CFC00;
+            --warning: #FFD700;
+            --danger: #FF4500;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        header {
+            text-align: center;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            font-style: italic;
+            margin-top: 5px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+            padding: 15px;
+            border-left: 5px solid var(--accent);
+        }
+        
+        .card-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--primary);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: var(--dark);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+        
+        .achievement {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        
+        .achievement-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: var(--accent);
+        }
+        
+        .leader {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: var(--dark);
+            font-size: 0.9rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .fun-fact {
+            background: #FFF8DC;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border-left: 4px solid var(--warning);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏆 Cagômetro Premium 🚽</h1>
+            <div class="subtitle">Acompanhamento de desempenho no trono real</div>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('registro')">Registro Diário</div>
+            <div class="tab" onclick="switchTab('estatisticas')">Estatísticas</div>
+            <div class="tab" onclick="switchTab('ranking')">Ranking</div>
+            <div class="tab" onclick="switchTab('conquistas')">Conquistas</div>
+        </div>
+        
+        <div id="registro" class="tab-content active">
+            <div class="card">
+                <div class="card-header">Registrar Evento de Hoje</div>
+                <div class="form-group">
+                    <label for="data">Data:</label>
+                    <input type="date" id="data">
+                </div>
+                <table>
+                    <tr>
+                        <th>Amigo</th>
+                        <th>Cagou?</th>
+                        <th>Horário</th>
+                        <th>Duração (min)</th>
+                        <th>Classificação</th>
+                    </tr>
+                    <tr>
+                        <td>João</td>
+                        <td><input type="checkbox" id="joao"></td>
+                        <td><input type="time" id="joao-time"></td>
+                        <td><input type="number" id="joao-duracao" min="1" max="60"></td>
+                        <td>
+                            <select id="joao-class">
+                                <option value="normal">Normal</option>
+                                <option value="urgente">Urgente</option>
+                                <option value="epico">Épico</option>
+                                <option value="sofrido">Sofrido</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Breno</td>
+                        <td><input type="checkbox" id="breno"></td>
+                        <td><input type="time" id="breno-time"></td>
+                        <td><input type="number" id="breno-duracao" min="1" max="60"></td>
+                        <td>
+                            <select id="breno-class">
+                                <option value="normal">Normal</option>
+                                <option value="urgente">Urgente</option>
+                                <option value="epico">Épico</option>
+                                <option value="sofrido">Sofrido</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Rian</td>
+                        <td><input type="checkbox" id="rian"></td>
+                        <td><input type="time" id="rian-time"></td>
+                        <td><input type="number" id="rian-duracao" min="1" max="60"></td>
+                        <td>
+                            <select id="rian-class">
+                                <option value="normal">Normal</option>
+                                <option value="urgente">Urgente</option>
+                                <option value="epico">Épico</option>
+                                <option value="sofrido">Sofrido</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Eduardo</td>
+                        <td><input type="checkbox" id="eduardo"></td>
+                        <td><input type="time" id="eduardo-time"></td>
+                        <td><input type="number" id="eduardo-duracao" min="1" max="60"></td>
+                        <td>
+                            <select id="eduardo-class">
+                                <option value="normal">Normal</option>
+                                <option value="urgente">Urgente</option>
+                                <option value="epico">Épico</option>
+                                <option value="sofrido">Sofrido</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Guilherme</td>
+                        <td><input type="checkbox" id="guilherme"></td>
+                        <td><input type="time" id="guilherme-time"></td>
+                        <td><input type="number" id="guilherme-duracao" min="1" max="60"></td>
+                        <td>
+                            <select id="guilherme-class">
+                                <option value="normal">Normal</option>
+                                <option value="urgente">Urgente</option>
+                                <option value="epico">Épico</option>
+                                <option value="sofrido">Sofrido</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                <button class="btn" onclick="registrarEvento()">Registrar Evento</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Histórico do Mês</div>
+                <div id="historico-tabela">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>João</th>
+                                <th>Breno</th>
+                                <th>Rian</th>
+                                <th>Eduardo</th>
+                                <th>Guilherme</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historico-body">
+                            <!-- Os dados serão preenchidos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div id="estatisticas" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-events">0</div>
+                    <div class="stat-label">Total de Eventos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avg-per-day">0</div>
+                    <div class="stat-label">Média por Dia</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="most-active">-</div>
+                    <div class="stat-label">Horário Mais Ativo</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="longest">0 min</div>
+                    <div class="stat-label">Duração Recorde</div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Distribuição por Horário</div>
+                <div class="chart-container">
+                    <canvas id="timeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Eventos por Tipo</div>
+                <div class="chart-container">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="fun-fact">
+                <strong>💡 Curiosidade:</strong> 
+                <span id="curiosity">O ser humano passa em média 92 dias de sua vida no banheiro!</span>
+            </div>
+        </div>
+        
+        <div id="ranking" class="tab-content">
+            <div class="card">
+                <div class="card-header">Ranking do Mês</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Amigo</th>
+                            <th>Total</th>
+                            <th>Média/Dia</th>
+                            <th>Pontuação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body">
+                        <!-- Os dados serão preenchidos via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Comparativo Mensal</div>
+                <div class="chart-container">
+                    <canvas id="comparisonChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="fun-fact">
+                <strong>🏆 Desafio do Mês:</strong> 
+                <span id="monthChallenge">Quem conseguir a maior sequência de dias consecutivos ganha pontos extras!</span>
+            </div>
+        </div>
+        
+        <div id="conquistas" class="tab-content">
+            <div class="card">
+                <div class="card-header">Conquistas Desbloqueadas</div>
+                <div id="achievements-list">
+                    <div class="achievement">
+                        <div class="achievement-icon">🚀</div>
+                        <div>
+                            <strong>Primeiro Passo</strong>
+                            <p>Registrar o primeiro evento no Cagômetro</p>
+                        </div>
+                    </div>
+                    <div class="achievement">
+                        <div class="achievement-icon">👑</div>
+                        <div>
+                            <strong>Rei do Trono</strong>
+                            <p>Ficar 15 minutos ou mais no banheiro</p>
+                        </div>
+                    </div>
+                    <!-- Mais conquistas serão adicionadas via JavaScript -->
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">Próximas Conquistas</div>
+                <div id="next-achievements">
+                    <div class="achievement">
+                        <div class="achievement-icon">📅</div>
+                        <div>
+                            <strong>Rotina Saudável</strong>
+                            <p>Completar 7 dias consecutivos com evento</p>
+                            <progress value="2" max="7"></progress>
+                        </div>
+                    </div>
+                    <!-- Mais próximas conquistas serão adicionadas via JavaScript -->
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            Cagômetro Premium © 2023 - A ferramenta definitiva para estatísticas do trono
+        </footer>
+    </div>
+
+    <script>
+        // Dados iniciais
+        let eventos = [];
+        const amigos = ['João', 'Breno', 'Rian', 'Eduardo', 'Guilherme'];
+        const classificacoes = {
+            'normal': {pontos: 1, cor: '#4CAF50'},
+            'urgente': {pontos: 2, cor: '#FF9800'},
+            'epico': {pontos: 3, cor: '#9C27B0'},
+            'sofrido': {pontos: 1.5, cor: '#F44336'}
+        };
+        
+        const curiosidades = [
+            "O ser humano passa em média 92 dias de sua vida no banheiro!",
+            "A posição correta para evacuar é agachado, não sentado!",
+            "O cocô é composto por 75% de água e 25% de material sólido.",
+            "O recorde mundial de tempo no banheiro é de 165 horas!",
+            "Em média, as pessoas vão ao banheiro 6-7 vezes por dia para urinar e 1-2 vezes para defecar.",
+            "A fibra alimentar é essencial para um bom funcionamento intestinal.",
+            "O som do banheiro escondendo 'ruídos constrangedores' é chamado de 'ruído branco'."
+        ];
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            // Definir data atual como padrão
+            const hoje = new Date();
+            document.getElementById('data').value = hoje.toISOString().substr(0, 10);
+            
+            // Carregar dados salvos
+            carregarDados();
+            
+            // Atualizar todas as visualizações
+            atualizarHistorico();
+            atualizarEstatisticas();
+            atualizarRanking();
+            atualizarConquistas();
+        });
+        
+        // Função para registrar novo evento
+        function registrarEvento() {
+            const data = document.getElementById('data').value;
+            const novoEvento = { data: data, detalhes: {} };
+            
+            amigos.forEach(amigo => {
+                const nomeLower = amigo.toLowerCase();
+                const cagou = document.getElementById(nomeLower).checked;
+                
+                if (cagou) {
+                    novoEvento.detalhes[amigo] = {
+                        horario: document.getElementById(`${nomeLower}-time`).value,
+                        duracao: parseInt(document.getElementById(`${nomeLower}-duracao`).value) || 5,
+                        classificacao: document.getElementById(`${nomeLower}-class`).value
+                    };
+                } else {
+                    novoEvento.detalhes[amigo] = null;
+                }
+            });
+            
+            eventos.push(novoEvento);
+            salvarDados();
+            atualizarHistorico();
+            atualizarEstatisticas();
+            atualizarRanking();
+            atualizarConquistas();
+            
+            alert('Evento registrado com sucesso!');
+        }
+        
+        // Função para atualizar o histórico
+        function atualizarHistorico() {
+            const tbody = document.getElementById('historico-body');
+            tbody.innerHTML = '';
+            
+            eventos.slice().reverse().forEach(evento => {
+                const row = document.createElement('tr');
+                
+                // Coluna de data
+                const dataCell = document.createElement('td');
+                dataCell.textContent = formatarData(evento.data);
+                row.appendChild(dataCell);
+                
+                // Colunas para cada amigo
+                amigos.forEach(amigo => {
+                    const cell = document.createElement('td');
+                    if (evento.detalhes[amigo]) {
+                        cell.innerHTML = '✅';
+                        cell.title = `${evento.detalhes[amigo].horario} - ${evento.detalhes[amigo].duracao}min (${evento.detalhes[amigo].classificacao})`;
+                    } else {
+                        cell.innerHTML = '❌';
+                    }
+                    row.appendChild(cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Função para atualizar estatísticas
+        function atualizarEstatisticas() {
+            // Calcular totais
+            const totalEvents = eventos.reduce((total, evento) => {
+                return total + Object.values(evento.detalhes).filter(d => d !== null).length;
+            }, 0);
+            
+            document.getElementById('total-events').textContent = totalEvents;
+            
+            // Calcular média por dia
+            const diasUnicos = new Set(eventos.map(e => e.data));
+            const avgPerDay = diasUnicos.size > 0 ? (totalEvents / diasUnicos.size).toFixed(1) : '0';
+            document.getElementById('avg-per-day').textContent = avgPerDay;
+            
+            // Encontrar horário mais ativo
+            const horarios = eventos.flatMap(evento => 
+                Object.values(evento.detalhes)
+                    .filter(d => d !== null)
+                    .map(d => parseInt(d.horario.split(':')[0]))
+            );
+            
+            if (horarios.length > 0) {
+                const modaHorario = calcularModa(horarios);
+                document.getElementById('most-active').textContent = `${modaHorario}h`;
+            }
+            
+            // Encontrar duração recorde
+            const duracoes = eventos.flatMap(evento => 
+                Object.values(evento.detalhes)
+                    .filter(d => d !== null)
+                    .map(d => d.duracao)
+            );
+            
+            const longest = duracoes.length > 0 ? Math.max(...duracoes) : 0;
+            document.getElementById('longest').textContent = `${longest} min`;
+            
+            // Atualizar curiosidade
+            document.getElementById('curiosity').textContent = curiosidades[Math.floor(Math.random() * curiosidades.length)];
+            
+            // Atualizar gráficos
+            atualizarGraficos();
+        }
+        
+        // Função para atualizar ranking
+        function atualizarRanking() {
+            const tbody = document.getElementById('ranking-body');
+            tbody.innerHTML = '';
+            
+            // Calcular pontuação de cada amigo
+            const scores = amigos.map(amigo => {
+                const eventosAmigo = eventos.filter(evento => evento.detalhes[amigo] !== null);
+                const total = eventosAmigo.length;
+                const pontuacao = eventosAmigo.reduce((total, evento) => {
+                    const classificacao = evento.detalhes[amigo].classificacao;
+                    return total + classificacoes[classificacao].pontos;
+                }, 0);
+                
+                const diasUnicos = new Set(eventos.map(e => e.data));
+                const mediaDia = diasUnicos.size > 0 ? (total / diasUnicos.size).toFixed(1) : '0';
+                
+                return { amigo, total, mediaDia, pontuacao };
+            });
+            
+            // Ordenar por pontuação
+            scores.sort((a, b) => b.pontuacao - a.pontuacao);
+            
+            // Preencher tabela
+            scores.forEach((score, index) => {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td class="leader">${score.amigo}</td>
+                    <td>${score.total}</td>
+                    <td>${score.mediaDia}</td>
+                    <td>${score.pontuacao.toFixed(1)}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+            
+            // Atualizar gráfico de comparação
+            atualizarGraficoComparacao(scores);
+        }
+        
+        // Função para atualizar conquistas
+        function atualizarConquistas() {
+            // Implementar lógica de conquistas
+            // Esta é uma versão simplificada
+            document.getElementById('achievements-list').innerHTML = `
+                <div class="achievement">
+                    <div class="achievement-icon">🚀</div>
+                    <div>
+                        <strong>Primeiro Passo</strong>
+                        <p>Registrar o primeiro evento no Cagômetro</p>
+                    </div>
+                </div>
+                <div class="achievement">
+                    <div class="achievement-icon">👑</div>
+                    <div>
+                        <strong>Rei do Trono</strong>
+                        <p>Ficar 15 minutos ou mais no banheiro</p>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('next-achievements').innerHTML = `
+                <div class="achievement">
+                    <div class="achievement-icon">📅</div>
+                    <div>
+                        <strong>Rotina Saudável</strong>
+                        <p>Completar 7 dias consecutivos com evento</p>
+                        <progress value="2" max="7"></progress>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Funções auxiliares
+        function formatarData(dataStr) {
+            const data = new Date(dataStr);
+            return data.toLocaleDateString('pt-BR');
+        }
+        
+        function calcularModa(arr) {
+            const frequency = {};
+            let max = 0;
+            let result;
+            
+            for (const num of arr) {
+                frequency[num] = (frequency[num] || 0) + 1;
+                if (frequency[num] > max) {
+                    max = frequency[num];
+                    result = num;
+                }
+            }
+            
+            return result;
+        }
+        
+        function salvarDados() {
+            localStorage.setItem('cagometroData', JSON.stringify(eventos));
+        }
+        
+        function carregarDados() {
+            const dadosSalvos = localStorage.getItem('cagometroData');
+            if (dadosSalvos) {
+                eventos = JSON.parse(dadosSalvos);
+            }
+        }
+        
+        function switchTab(tabName) {
+            // Esconder todas as tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Mostrar a tab selecionada
+            document.getElementById(tabName).classList.add('active');
+            
+            // Atualar a tab ativa
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+        
+        // Funções para gráficos (seriam implementadas completamente)
+        function atualizarGraficos() {
+            // Implementação simplificada para demonstração
+            console.log("Gráficos atualizados");
+        }
+        
+        function atualizarGraficoComparacao(scores) {
+            // Implementação simplificada para demonstração
+            console.log("Gráfico de comparação atualizado");
+        }
+    </script>
+</body>
+</html>
