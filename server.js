@@ -18,6 +18,39 @@ const pool = new Pool({
 
 const AMIGOS = ['joao', 'breno', 'rian', 'eduardo', 'guilherme'];
 
+
+// NOVAS ROTAS PARA O NOVO FRONTEND
+
+// POST /api/cagada - marca uma cagada para um nome
+app.post('/api/cagada', async (req, res) => {
+  const { nome } = req.body;
+  if (!nome || typeof nome !== 'string') {
+    return res.status(400).json({ error: 'Nome obrigatório' });
+  }
+  try {
+    // Salva no banco: incrementa ou cria registro
+    await pool.query(
+      `INSERT INTO cagadas (nome, cagadas) VALUES ($1, 1)
+       ON CONFLICT (nome) DO UPDATE SET cagadas = cagadas + 1`,
+      [nome.trim()]
+    );
+    res.status(201).json({ message: 'Cagada registrada' });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao registrar cagada' });
+  }
+});
+
+// GET /api/ranking - retorna ranking geral
+app.get('/api/ranking', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT nome, cagadas FROM cagadas ORDER BY cagadas DESC, nome ASC');
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao buscar ranking' });
+  }
+});
+
+// Rotas antigas para compatibilidade (opcional)
 // GET todos os registros
 app.get('/eventos', async (req, res) => {
   try {

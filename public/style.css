@@ -3,50 +3,159 @@
     --secondary: #D2B48C;
     --accent: #F4A460;
     --light: #F5F5DC;
-    --dark: #4A2C2A;
-    --success: #7CFC00;
-    --warning: #FFD700;
-    --danger: #FF4500;
-}
 
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--light);
-    color: var(--dark);
-    margin: 0;
-    padding: 20px;
-}
+    body, html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        font-family: 'Montserrat', Arial, sans-serif;
+        background: linear-gradient(120deg, #f8fafc 0%, #e3f0ff 100%);
+    }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-    padding: 20px;
-    overflow: hidden;
-}
+    .main-bg {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 0 12px;
+    }
 
-header {
-    text-align: center;
-    padding: 15px;
-    background: var(--primary);
-    color: white;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
+    .card {
+        background: #fff;
+        border-radius: 18px;
+        box-shadow: 0 6px 32px rgba(44,62,80,0.10);
+        padding: 38px 32px 32px 32px;
+        max-width: 410px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 18px;
+    }
 
-h1 {
-    margin: 0;
-    font-size: 2.5rem;
-}
+    .logo {
+        font-size: 2.3rem;
+        font-weight: 700;
+        color: #2e3a59;
+        margin-bottom: 6px;
+        letter-spacing: -1px;
+    }
 
-.subtitle {
-    font-style: italic;
-    margin-top: 5px;
-}
+    .subtitle {
+        color: #4caf50;
+        font-size: 1.08rem;
+        font-weight: 500;
+        margin-bottom: 22px;
+    }
 
-.dashboard {
+    form {
+        display: flex;
+        width: 100%;
+        gap: 10px;
+        margin-bottom: 28px;
+    }
+
+    input[type="text"] {
+        flex: 1;
+        padding: 13px 15px;
+        border: 1.5px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 1.08rem;
+        background: #f8fafc;
+        transition: border 0.2s;
+        font-family: 'Montserrat', Arial, sans-serif;
+    }
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #4caf50;
+        background: #fff;
+    }
+
+    button {
+        background: linear-gradient(90deg, #4caf50 60%, #43a047 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 13px 22px;
+        font-size: 1.08rem;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(76,175,80,0.08);
+        transition: background 0.2s, transform 0.1s;
+        font-family: 'Montserrat', Arial, sans-serif;
+    }
+    button:hover {
+        background: linear-gradient(90deg, #388e3c 60%, #43a047 100%);
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .divider {
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(90deg, #e3f0ff 0%, #4caf50 100%);
+        margin: 18px 0 18px 0;
+        border-radius: 2px;
+    }
+
+    .ranking-title {
+        color: #2e3a59;
+        font-size: 1.18rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        margin-top: 0;
+    }
+
+    .chart-container {
+        width: 100%;
+        max-width: 340px;
+        margin: 0 auto;
+        background: #f8fafc;
+        border-radius: 10px;
+        box-shadow: 0 1px 6px rgba(44,62,80,0.06);
+        padding: 12px 6px 6px 6px;
+    }
+
+    canvas {
+        width: 100% !important;
+        height: 220px !important;
+    }
+
+    .footer {
+        text-align: center;
+        color: #7b8ca6;
+        font-size: 0.98rem;
+        margin-top: 10px;
+        margin-bottom: 8px;
+        font-family: 'Montserrat', Arial, sans-serif;
+    }
+
+    @media (max-width: 600px) {
+        .card {
+            max-width: 99vw;
+            padding: 18px 4vw 18px 4vw;
+        }
+        .logo {
+            font-size: 1.3rem;
+        }
+        .ranking-title {
+            font-size: 1.01rem;
+        }
+        .chart-container {
+            max-width: 99vw;
+            padding: 6px 2px 2px 2px;
+        }
+        canvas {
+            height: 140px !important;
+        }
+        form {
+            flex-direction: column;
+            gap: 8px;
+        }
+        button {
+            width: 100%;
+        }
+    }
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
